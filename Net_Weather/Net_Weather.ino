@@ -1,28 +1,40 @@
+/**
+ * 代码参考： https://gitee.com/young_people_only_love_her/My_ESP8266.git
+ * Description ：ESP8266模块通过访问 “心知天气” 获取实时天气信息（Json数据），需要在心知天气注册并获取私人秘钥
+ *              通过ArduinoJson库解析所需要的信息，并显示在OLED 屏幕上。
+ * Device ：ESP8266模块（ NodeMcu ）
+ *          0.96英寸OLED 屏幕（ SPI ）
+ *          接线说明：
+ *          ESP8266 =======> OLED 屏幕上
+ *              D4  =======> CS
+ *              D5  =======> SCL
+ *              D6  =======> SDA
+ *              D7  =======> RST
+ *              D8  =======> D/C
+ */
 #include <SPI.h>
 #include <Wire.h>
 #include <ESP8266WiFi.h>
 #include <ArduinoJson.h>
-//
 #include <Arduino.h>
 #include <U8g2lib.h>
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 //============WiFi名称和密码================//
-const char* ssid     = "CU_A2eT";
+const char* ssid     = "CU_A2eT"; //WiFi名称和密码
 const char* password = "1028507471";
 //==========目标服务器网址和端口==============//
 const char* host = "116.62.81.138";  //api.seniverse.com
 const uint16_t port = 80 ;
 //===============地区设置===================//
-String City = "ip";//城市
-String My_Key = "S2zymm_ymdywI-zHY";//禁止泄露
-//===============OLED引脚===================//
-//
+String City = "ip";//可根据IP获取城市地址，也可直接输入城市名称
+String My_Key = "S2zymm_ymdywI-zHY";//心知天气私人秘钥
+
 #ifdef U8X8_HAVE_HW_I2C
 #include <Wire.h>
 #endif
-
+//===============OLED引脚===================//
 U8G2_SSD1306_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/     14, /* data=*/12 , /* cs=*/ 3, /* dc=*/ 15, /* reset=*/ 13);
 
 //定义天气图标代码
@@ -204,7 +216,7 @@ void setup() {
   u8g2.begin();
   u8g2.enableUTF8Print();
   u8g2.clearBuffer();          // clear the internal memory
-  //  u8g2.setFont(u8g2_font_ncenB10_tr);
+  //  u8g2.setFont(u8g2_font_ncenB10_tr); //两种字体可供选择
   u8g2.setFont(u8g2_font_unifont_t_symbols);
   u8g2.drawStr(0, 18, "connecting to ");
   u8g2.setCursor(0, 36);   //设置光标处
@@ -217,7 +229,6 @@ void setup() {
 
   while (WiFi.status() != WL_CONNECTED) //等待连接
   {
-    //    u8g2.setCursor(0, 50);   //设置光标处
     int x = 0;
     while (x <= 40) {
       u8g2.drawStr( x , 50 , ".");
@@ -230,7 +241,7 @@ void setup() {
   Serial.println("WiFi connected");
   u8g2.clearBuffer();
   u8g2.drawStr(0, 18, "WiFi connected");
-  u8g2.setCursor(0, 36);   //设置光标处
+  u8g2.setCursor(0, 36);
   u8g2.print("IP:");
   u8g2.print(WiFi.localIP());
   u8g2.setCursor(0, 54);
@@ -241,18 +252,19 @@ void setup() {
 }
 void loop()
 {
-  showLocation();
-  GET_Weather();
-  DateHandle();
+  showLocation(); //显示地点和时间函数
+  GET_Weather(); //获取天气信息
+  DateHandle(); //处理获取到的初始信息
   while (OnTime < 3) {
-    standDisplay();
+    standDisplay(); //固定内容显示
     OnTime++;
-    DisplayTianqi();
+    DisplayTianqi(); //天气信息显示
   }
-  u8g2.clearDisplay();
-  OnTime = -1;
+  u8g2.clearDisplay(); //清屏
+  OnTime = -1; //重置计数
 }
 
+//函数功能：显示地点和时间
 void showLocation() {
   u8g2.clearBuffer();
   u8g2.drawXBMP(40, 0, 16, 16, location[0]);
@@ -279,7 +291,7 @@ void showLocation() {
   u8g2.sendBuffer();
   delay(6000);
 }
-// 绘制固定元素
+// 函数功能：绘制固定元素
 void standDisplay() {
   u8g2.clearBuffer();
   u8g2.drawXBMP( 84,  37, 16, 16, fuhao[3]); //“-”
@@ -306,7 +318,7 @@ void standDisplay() {
   u8g2.sendBuffer();
 }
 
-//获取天气信息
+//函数功能：获取天气信息
 void GET_Weather()
 {
   if ((millis() - getTime > 5000)) //10s
@@ -341,7 +353,7 @@ void GET_Weather()
   }
 }
 
-//处理获取到的初始信息
+//函数功能：处理获取到的初始信息
 void DateHandle()
 {
   if (DatFlag)
