@@ -65,7 +65,7 @@ typedef struct
 
 tianqixinxi day1, day2, day3;
 dat Nume;
-STime dTime, hTime;
+STime hTime;
 int OnTime = -1;   //计数显示变量  10s时间 5s今明后天天气
 bool DatFlag = true; //处理接收json数据的标志位
 unsigned long getTime = 0;  //获取网络天气和时间  5s请求一次
@@ -370,23 +370,24 @@ void DateHandle()
   if (DatFlag)
   {
     DatFlag = false;
-    int t = inputString.indexOf("Date:");//找时间
-    int m = inputString.lastIndexOf("GMT");
-    String inputTime = inputString.substring(t, m); //把含有时间的数据取出进行处理
-    Serial.println("------TimeString-----");
-    Serial.println(inputTime);
-    Serial.println("------TimeString-----");
-    hTime.Hour = (inputTime.substring(23, 25)).toInt();
-    hTime.Hour = hTime.Hour + 8;
-    if (hTime.Hour > 23) {
-      hTime.Hour -= 24;
-    }
-    hTime.Minute = (inputTime.substring(26, 28)).toInt();
-    // // hTime.Second = (inputTime.substring(miao+1, miao+3)).toInt();
-    Serial.println("------Time-----");
-    Serial.println(hTime.Hour);
-    Serial.println(hTime.Minute);
-    Serial.println("------Time-----");
+    // int t = inputString.indexOf("Date:");//找时间
+    // int m = inputString.lastIndexOf("GMT");
+    // String inputTime = inputString.substring(t, m); //把含有时间的数据取出进行处理
+    // Serial.println("------TimeString-----");
+    // Serial.println(inputTime);
+    // Serial.println("------TimeString-----");
+    // hTime.Hour = (inputTime.substring(23, 25)).toInt();
+    // hTime.Hour = hTime.Hour + 8;
+    // if (hTime.Hour > 23) {
+    //   hTime.Hour -= 24;
+    //   hTime.Day + = 1 ;
+    // }
+    // hTime.Minute = (inputTime.substring(26, 28)).toInt();
+    // // // hTime.Second = (inputTime.substring(miao+1, miao+3)).toInt();
+    // Serial.println("------Time-----");
+    // Serial.println(hTime.Hour);
+    // Serial.println(hTime.Minute);
+    // Serial.println("------Time-----");
     int jsonBeginAt = inputString.indexOf("{");   //判断json数据完整性
     int jsonEndAt = inputString.lastIndexOf("}");
 
@@ -481,20 +482,29 @@ void processMessage()
   hTime.Year = (riqi.substring(0, 4)).toInt();
   hTime.Month = (riqi.substring(5, 7)).toInt();
   hTime.Day = (riqi.substring(8, 10)).toInt();
+  hTime.Hour = (riqi.substring(11, 13)).toInt() + 8;
+      if (hTime.Hour > 23) {
+      hTime.Hour -= 24;
+      hTime.Day=hTime.Day+1 ;
+    }
+  hTime.Minute = (riqi.substring(14, 16)).toInt();
   Serial.println("---------------------");
   Serial.println(riqi);
   Serial.println(hTime.Year);
   Serial.println(hTime.Month);
   Serial.println(hTime.Day);
+  Serial.println(hTime.Hour);
+  Serial.println(hTime.Minute);
   Serial.println("---------------------");
 
-  day1.tianqitubiao = atoi(results_0_daily_0_code_day);//获取今天天气信息
+  day1.tianqitubiao = atoi(results_0_daily_0_code_day);
+  Serial.println(day1.tianqitubiao);//获取今天天气信息
   if (day1.tianqitubiao >= 0 && day1.tianqitubiao <= 3)
   {
     day1.tianqitubiao = SUN; //晴天
   } else if (day1.tianqitubiao >= 4 && day1.tianqitubiao <= 8) {
     day1.tianqitubiao = SUN_CLOUD; //多云
-  } else if (day1.tianqitubiao = 9) {
+  } else if (day1.tianqitubiao == 9) {
     day1.tianqitubiao = CLOUD; //阴天
   } else if (day1.tianqitubiao >= 10 && day1.tianqitubiao <= 19) {
     day1.tianqitubiao = RAIN; //雨天
@@ -513,19 +523,21 @@ void processMessage()
   day1.zuigaowendu = atoi(results_0_daily_0_high);
   day1.zuidiwendu = atoi(results_0_daily_0_low);
   day1.shidu = atoi(results_0_daily_0_humidity);
-  Serial.println("---------------------");
+  Serial.println("---------day1------------");
   Serial.println(day1.tianqitubiao);
   Serial.println(day1.zuigaowendu);
   Serial.println(day1.zuidiwendu);
   Serial.println(day1.shidu);
   Serial.println("---------------------");
+
   day2.tianqitubiao = atoi(results_0_daily_1_code_day);
+  Serial.println(day2.tianqitubiao);//获取今天天气信息
   if (day2.tianqitubiao >= 0 && day2.tianqitubiao <= 3)
   {
     day2.tianqitubiao = SUN; //晴天
   } else if (day2.tianqitubiao >= 4 && day2.tianqitubiao <= 8) {
     day2.tianqitubiao = SUN_CLOUD; //多云
-  } else if (day2.tianqitubiao = 9) {
+  } else if (day2.tianqitubiao == 9) {
     day2.tianqitubiao = CLOUD; //阴天
   } else if (day2.tianqitubiao >= 10 && day2.tianqitubiao <= 19) {
     day2.tianqitubiao = RAIN; //雨天
@@ -543,14 +555,21 @@ void processMessage()
   day2.zuigaowendu = atoi(results_0_daily_1_high);
   day2.zuidiwendu = atoi(results_0_daily_1_low);
   day2.shidu = atoi(results_0_daily_1_humidity);
+  Serial.println("---------day2------------");
+  Serial.println(day2.tianqitubiao);
+  Serial.println(day2.zuigaowendu);
+  Serial.println(day2.zuidiwendu);
+  Serial.println(day2.shidu);
+  Serial.println("---------------------");
 
   day3.tianqitubiao = atoi(results_0_daily_2_code_day);
+  Serial.println(day3.tianqitubiao);//获取今天天气信息
   if (day3.tianqitubiao >= 0 && day3.tianqitubiao <= 3)
   {
     day3.tianqitubiao = SUN; //晴天
   } else if (day3.tianqitubiao >= 4 && day3.tianqitubiao <= 8) {
     day3.tianqitubiao = SUN_CLOUD; //多云
-  } else if (day3.tianqitubiao = 9) {
+  } else if (day3.tianqitubiao == 9) {
     day3.tianqitubiao = CLOUD; //阴天
   } else if (day3.tianqitubiao >= 10 && day3.tianqitubiao <= 19) {
     day3.tianqitubiao = RAIN; //雨天
@@ -568,6 +587,12 @@ void processMessage()
   day3.zuigaowendu = atoi(results_0_daily_2_high);
   day3.zuidiwendu = atoi(results_0_daily_2_low);
   day3.shidu = atoi(results_0_daily_2_humidity);
+  Serial.println("---------day3------------");
+  Serial.println(day3.tianqitubiao);
+  Serial.println(day3.zuigaowendu);
+  Serial.println(day3.zuidiwendu);
+  Serial.println(day3.shidu);
+  Serial.println("---------------------");
 }
 
 /**************************************************
