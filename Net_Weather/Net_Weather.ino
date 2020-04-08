@@ -43,8 +43,9 @@ typedef struct
   int Minute;
   int Second;
   int Year;
-  int Month;
+  // int Month;
   int Day;
+  int Week;
 } STime;      //时间日期结构体
 typedef struct
 {
@@ -69,7 +70,9 @@ STime hTime;
 int OnTime = -1;   //计数显示变量  10s时间 5s今明后天天气
 bool DatFlag = true; //处理接收json数据的标志位
 unsigned long getTime = 0;  //获取网络天气和时间  5s请求一次
-String location_Name ; //从IP地址解析到的地点
+String location_Name ;//从IP地址解析到的地点
+String Month ; //英文缩写月份
+String Week ; //英文缩写星期
 String inputString = "";  //接收到的数据
 //请求URL
 String url = "/v3/weather/daily.json?key=" + My_Key + "&location=" + City + "&language=zh-Hans&unit=c&start=0&days=3";
@@ -261,18 +264,37 @@ void loop()
 void showLocation() {
   u8g2.clearBuffer();
   u8g2.setCursor(48, 32);
-  u8g2.print(hTime.Year);
-  if (hTime.Month < 10) {
-    u8g2.setCursor(52, 48);
-    u8g2.print(hTime.Month);
-  } else {
-    u8g2.setCursor(44, 48);
-    u8g2.print(hTime.Month);
+  u8g2.print(hTime.Year); //年份
+  // if (hTime.Month < 10) {
+  //   u8g2.setCursor(52, 48);
+  //   u8g2.print(hTime.Month);
+  // } else {
+  //   u8g2.setCursor(44, 48);
+  //   u8g2.print(hTime.Month);
+  // }
+  // u8g2.setCursor(60, 48);
+  // u8g2.print("/");
+  // u8g2.setCursor(68, 48);
+  // u8g2.print(hTime.Day);
+
+  u8g2.setCursor(24,48); //月（英文缩写）
+  u8g2.print(Month);
+  if (hTime.Day<10)
+  {
+    u8g2.setCursor(56,48); // 日，一位数时前面补 “ 0 ”
+    u8g2.print("0");
+    u8g2.setCursor(64,48);
+    u8g2.print(hTime.Day);
+  }else
+  {
+    u8g2.setCursor(56,48); // 两位数直接输出
+    u8g2.print(hTime.Day);
   }
-  u8g2.setCursor(60, 48);
+  u8g2.setCursor(48,48);
   u8g2.print("/");
-  u8g2.setCursor(68, 48);
-  u8g2.print(hTime.Day);
+  u8g2.setCursor(80,48); //周（英文缩写）
+  u8g2.print(Week);
+
   u8g2.setCursor(8, 64);
   u8g2.print("Powered by ZJP");
 
@@ -370,24 +392,28 @@ void DateHandle()
   if (DatFlag)
   {
     DatFlag = false;
-    // int t = inputString.indexOf("Date:");//找时间
-    // int m = inputString.lastIndexOf("GMT");
-    // String inputTime = inputString.substring(t, m); //把含有时间的数据取出进行处理
-    // Serial.println("------TimeString-----");
-    // Serial.println(inputTime);
-    // Serial.println("------TimeString-----");
-    // hTime.Hour = (inputTime.substring(23, 25)).toInt();
-    // hTime.Hour = hTime.Hour + 8;
-    // if (hTime.Hour > 23) {
-    //   hTime.Hour -= 24;
-    //   hTime.Day + = 1 ;
-    // }
-    // hTime.Minute = (inputTime.substring(26, 28)).toInt();
-    // // // hTime.Second = (inputTime.substring(miao+1, miao+3)).toInt();
-    // Serial.println("------Time-----");
-    // Serial.println(hTime.Hour);
-    // Serial.println(hTime.Minute);
-    // Serial.println("------Time-----");
+    int t = inputString.indexOf("Date:");//找时间
+    int m = inputString.lastIndexOf("GMT");
+    String inputTime = inputString.substring(t, m); //把含有时间的数据取出进行处理
+    Serial.println("------TimeString-----");
+    Serial.println(inputTime);
+    Serial.println("------TimeString-----");
+    hTime.Year = (inputTime.substring(18,22)).toInt();
+    Month = (inputTime.substring(14,17));
+    hTime.Day = (inputTime.substring(11,13)).toInt();
+    Week = (inputTime.substring(6,9));
+    hTime.Hour = (inputTime.substring(23, 25)).toInt();
+    hTime.Hour = hTime.Hour + 8;
+    if (hTime.Hour > 23) {
+      hTime.Hour -= 24;
+      hTime.Day ++ ;
+    }
+    hTime.Minute = (inputTime.substring(26, 28)).toInt();
+    // // hTime.Second = (inputTime.substring(miao+1, miao+3)).toInt();
+    Serial.println("------Time-----");
+    Serial.println(hTime.Hour);
+    Serial.println(hTime.Minute);
+    Serial.println("------Time-----");
     int jsonBeginAt = inputString.indexOf("{");   //判断json数据完整性
     int jsonEndAt = inputString.lastIndexOf("}");
 
@@ -478,21 +504,22 @@ void processMessage()
   const char* results_0_last_update = results_0["last_update"]; // "2020-04-04T11:17:52+08:00"
 
   location_Name = results_0_location_name;
-  String riqi = results_0_last_update;  //将日期取出处理
-  hTime.Year = (riqi.substring(0, 4)).toInt();
-  hTime.Month = (riqi.substring(5, 7)).toInt();
-  hTime.Day = (riqi.substring(8, 10)).toInt();
-  hTime.Hour = (riqi.substring(11, 13)).toInt() + 8;
-      if (hTime.Hour > 23) {
-      hTime.Hour -= 24;
-      hTime.Day=hTime.Day+1 ;
-    }
-  hTime.Minute = (riqi.substring(14, 16)).toInt();
+  // String riqi = results_0_last_update;  //将日期取出处理
+  // hTime.Year = (riqi.substring(0, 4)).toInt();
+  // hTime.Month = (riqi.substring(5, 7)).toInt();
+  // hTime.Day = (riqi.substring(8, 10)).toInt();
+  // hTime.Hour = (riqi.substring(11, 13)).toInt() + 3;
+  //     if (hTime.Hour > 23) {
+  //     hTime.Hour -= 24;
+  //     hTime.Day=hTime.Day+1 ;
+  //   }
+  // hTime.Minute = (riqi.substring(14, 16)).toInt() + 7;
   Serial.println("---------------------");
-  Serial.println(riqi);
+  // Serial.println(riqi);
   Serial.println(hTime.Year);
-  Serial.println(hTime.Month);
+  Serial.println(Month);
   Serial.println(hTime.Day);
+  Serial.println(Week);
   Serial.println(hTime.Hour);
   Serial.println(hTime.Minute);
   Serial.println("---------------------");
