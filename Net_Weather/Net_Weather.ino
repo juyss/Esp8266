@@ -23,11 +23,18 @@ String My_Key = "S2zymm_ymdywI-zHY";//禁止泄露
 #include <Wire.h>
 #endif
 
-//U8G2_SSD1306_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 14 , /* data=*/12 , /* cs=*/ 3 , /* dc=*/ 15 , /* reset=*/ 13 );
+// SH1106_128*64_SPI 模式接线
+//U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0,/* clock=*/ 14, /* data=*/ 13,/* cs=*/ 15, /* dc=*/ 4, /* reset=*/ 5);
 
-#define SCL 5
-#define SDA 4
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R2, /* clock=*/ SCL,    /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);   // All Boards without   Reset of the Display
+U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R2,/* clock=*/ 5, /* data=*/ 4,/* cs=*/ 15, /* dc=*/ 2, /* reset=*/ 0);
+
+// SSD1306_128*64_SPI 模式接线
+//U8G2_SH1106_128X64_NONAME_F_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 15 , /* data=*/13 , /* cs=*/ 3 , /* dc=*/ 14 , /* reset=*/ 12 );
+
+// SSD1306_128*64_IIC 模式接线
+//#define SCL 5
+//#define SDA 4
+//U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2(U8G2_R2, /* clock=*/ SCL,    /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE); 
 
 //定义天气图标代码
 #define SUN  0
@@ -188,23 +195,6 @@ static const unsigned char PROGMEM date[] [32] =
   },///*"气",5},*/
 };
 
-//static const unsigned char PROGMEM location[] [32] =
-//{
-//  // 济(0) 源(1) 市(2)
-//
-//  { 0x00, 0x01, 0x04, 0x02, 0xE8, 0x7F, 0x48, 0x10, 0x81, 0x08, 0x02, 0x05, 0x02, 0x02, 0x88, 0x0D,
-//    0x68, 0x70, 0x84, 0x08, 0x87, 0x08, 0x84, 0x08, 0x84, 0x08, 0x44, 0x08, 0x44, 0x08, 0x20, 0x08,
-//  },/*"济",0*/
-//
-//  { 0x00, 0x00, 0xE4, 0x7F, 0x28, 0x04, 0x28, 0x02, 0xA1, 0x3F, 0xA2, 0x20, 0xA2, 0x3F, 0xA8, 0x20,
-//    0xA8, 0x3F, 0xA4, 0x24, 0x27, 0x04, 0x24, 0x15, 0x94, 0x24, 0x54, 0x44, 0x0C, 0x05, 0x00, 0x02,
-//  },/*"源",1*/
-//
-//  { 0x40, 0x00, 0x80, 0x00, 0x00, 0x00, 0xFE, 0x3F, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0xFC, 0x1F,
-//    0x84, 0x10, 0x84, 0x10, 0x84, 0x10, 0x84, 0x10, 0x84, 0x14, 0x84, 0x08, 0x80, 0x00, 0x80, 0x00,
-//  },/*"市",2*/
-//
-//};
 //====================================================数组END=======================================================================//
 
 void setup() {
@@ -249,15 +239,15 @@ void setup() {
 }
 void loop()
 {
-  showLocation();
-  GET_Weather();
-  DateHandle();
-  while (OnTime < 3) {
-    standDisplay();
-    OnTime++;
-    DisplayTianqi();
+  GET_Weather(); //获取天气信息
+  DateHandle(); //处理接收到的json数据
+  while (OnTime < 3) { //显示第 OnTime 天的数据
+    standDisplay(); //显示固定内容
+    OnTime++; //计数器累加
+    DisplayTianqi(); //显示天气信息
   }
-  u8g2.clearDisplay();
+  showLocation(); //显示日期地点
+  // u8g2.clearDisplay();
   OnTime = -1;
 }
 
