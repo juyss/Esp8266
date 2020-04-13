@@ -94,9 +94,9 @@ String Weather1; //天气信息2
 String Weather2; //天气信息3
 String inputString = "";  //接收到的数据
 //请求URL
-String url = "/v3/weather/daily.json?key=" + My_Key + "&location=" + City + "&language=zh-Hans&unit=c&start=0&days=3";
+String url = "/v3/weather/daily.json?key=" + My_Key + "&location=" + City + "&language=en&unit=c&start=0&days=3";
 //请求数据
-String urlDat = "key=" + My_Key + "&location=" + City + "&language=zh-Hans&unit=c&start=0&days=3";
+String urlDat = "key=" + My_Key + "&location=" + City + "&language=en&unit=c&start=0&days=3";
 WiFiClient client;
 /*************************************************************************************
    使用取模软件：PCTOLCD 2002完美版
@@ -112,9 +112,8 @@ static const unsigned char PROGMEM fuhao[] [32] =
 
   {0xF0, 0x00, 0x08, 0x31, 0xF0, 0x0C, 0x80, 0x03, 0x60, 0x1E, 0x18, 0x21, 0x00, 0x1E, 0x00, 0x00,}, //*"%",1*/
 
-  { 0x06, 0x00, 0x89, 0x2F, 0x69, 0x30, 0x36, 0x20, 0x10, 0x20, 0x18, 0x00, 0x18, 0x00, 0x18, 0x00, //
-    0x18, 0x00, 0x18, 0x00, 0x18, 0x00, 0x10, 0x00, 0x30, 0x20, 0x60, 0x10, 0x80, 0x0F, 0x00, 0x00,
-  },//*"℃",2*/
+  { 0x00,0x00,0x00,0x00,0x8C,0x01,0x4C,0x06,0x2C,0x08,0x20,0x08,0x10,0x00,0x10,0x00,
+0x10,0x00,0x10,0x00,0x10,0x00,0x20,0x08,0x60,0x04,0x80,0x03,0x00,0x00,0x00,0x00,},//*"℃",2*/
 
   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,}, //*"-",3*/
 
@@ -397,9 +396,7 @@ static const unsigned char PROGMEM Code12 [] =
 0x00,0xC0,0x71,0x00,0x00,0x00,0x00,0x80,0x7F,0x00,0x00,0x00,0x00,0x00,0x1F,0x00,
 /*大风.bmp*/
 };
-
 //====================================================天气图标BitMap=======================================================================//
-
 void setup() {
   Serial.begin(115200);
   u8g2.begin();
@@ -503,20 +500,21 @@ void showLocation() {
   //从Json数据中获取地点，使用汉字字体集输出显示
   u8g2.setFont(u8g2_font_wqy15_t_chinese3);
   u8g2.setCursor(50 ,16);
-  u8g2.print(location_Name);
+  u8g2.print("济源");
   u8g2.sendBuffer();
   delay(4000);
 }
 // 绘制固定元素
 void standDisplay() {
   u8g2.clearBuffer();
+  u8g2.setFont(u8g2_font_unifont_t_symbols);
   u8g2.drawXBMP( 84,  37, 16, 16, fuhao[3]); //“-”
-  u8g2.drawXBMP( 112, 32, 16, 16, fuhao[2]); //“℃”
+  u8g2.drawXBMP( 112, 32, 14, 16, fuhao[2]); //“℃”
   u8g2.drawXBMP( 64,  48, 16, 16, shidu[0]); //湿
   u8g2.drawXBMP( 80,  48, 16, 16, shidu[1]); //度
-  u8g2.drawXBMP( 80,  0, 16, 16, date[3]);  //日
-  u8g2.drawXBMP( 96,  0, 16, 16, date[4]);  //天
-  u8g2.drawXBMP( 112,  0, 16, 16, date[5]); //气
+  u8g2.drawXBMP( 80,  0, 16, 16, date[4]);  //天
+//  u8g2.drawXBMP( 96,  0, 16, 16, date[4]);  //天
+//  u8g2.drawXBMP( 112,  0, 16, 16, date[5]); //气
   u8g2.setCursor(112, 62);
   u8g2.print("%");
   if (hTime.Hour < 10) {
@@ -863,24 +861,24 @@ void DisplayZZXS(int dday)
   switch (dday)
   {
     case 0: display_tq(dday, day1.tianqitubiao, day1.zuidiwendu, day1.zuigaowendu, day1.shidu);
-    u8g2.setFont(u8g2_font_wqy15_t_chinese3);
-    u8g2.setCursor(64,32);
+    u8g2.setFont(/*u8g2_font_wqy15_t_chinese3*/u8g2_font_unifont_t_symbols);
+    u8g2.setCursor(64,30);
     u8g2.print(Weather0); //天气状况
       Serial.println("printFirstDay");
         u8g2.sendBuffer();
         delay(6000);
       break;
     case 1: display_tq(dday, day2.tianqitubiao, day2.zuidiwendu, day2.zuigaowendu, day2.shidu);
-    u8g2.setFont(u8g2_font_wqy15_t_chinese3);
-    u8g2.setCursor(64,32);
+    u8g2.setFont(/*u8g2_font_wqy15_t_chinese3*/u8g2_font_unifont_t_symbols);
+    u8g2.setCursor(64,30);
     u8g2.print(Weather1); //天气状况
       Serial.println("printSecondDay");
         u8g2.sendBuffer();
         delay(6000);
       break;
     case 2: display_tq(dday, day3.tianqitubiao, day3.zuidiwendu, day3.zuigaowendu, day3.shidu);
-    u8g2.setFont(u8g2_font_wqy15_t_chinese3);
-    u8g2.setCursor(64,32);
+    u8g2.setFont(/*u8g2_font_wqy15_t_chinese3*/u8g2_font_unifont_t_symbols);
+    u8g2.setCursor(64,30);
     u8g2.print(Weather2); //天气状况
       Serial.println("printThridDay");
         u8g2.sendBuffer();
